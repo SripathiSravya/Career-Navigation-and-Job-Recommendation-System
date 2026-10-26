@@ -1,0 +1,815 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Career Navigation Dashboard</title>
+
+<style>
+:root {
+    --blue: #2563eb;
+    --purple: #7c3aed;
+    --ink: #172033;
+    --muted: #64748b;
+    --border: #e5eaf3;
+    --background: #f6f8fc;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--background);
+    color: var(--ink);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+}
+
+.sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 270px;
+    background: white;
+    border-right: 1px solid var(--border);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: transform .25s ease;
+}
+
+.brand {
+    padding: 22px 18px;
+    background: linear-gradient(115deg, #1d4ed8, #6d28d9);
+    color: white;
+}
+
+.brand strong { display: block; font-size: 17px; }
+.brand small { color: #e7eaff; }
+
+.nav-heading {
+    padding: 14px 18px 6px;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sidebar-nav { padding: 0 10px 15px; }
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    margin: 3px 0;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #475569;
+    text-align: left;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.nav-link:hover { background: #eff6ff; color: var(--blue); }
+
+.nav-link.active {
+    color: white;
+    background: linear-gradient(100deg, var(--blue), var(--purple));
+    font-weight: bold;
+}
+
+.nav-icon { width: 22px; text-align: center; font-size: 16px; }
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.sidebar-bottom a {
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.main-area {
+    margin-left: 270px;
+    min-width: 0;
+    transition: margin-left .25s ease;
+}
+
+body.sidebar-collapsed .sidebar { transform: translateX(-100%); }
+body.sidebar-collapsed .main-area { margin-left: 0; }
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 26px;
+    background: rgba(255,255,255,.96);
+    border-bottom: 1px solid var(--border);
+}
+
+.toggle-button {
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: white;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.topbar-title { font-weight: bold; font-size: 17px; }
+.topbar-subtitle { color: var(--muted); font-size: 12px; }
+
+main {
+    width: min(1180px, 94%);
+    margin: 26px auto 45px;
+}
+
+.section-view { display: none; }
+.section-view.active { display: block; animation: fadeIn .2s ease; }
+
+@keyframes fadeIn {
+    from { opacity: .4; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1.section-heading { font-size: 26px; margin: 0 0 5px; }
+.welcome h1 { font-size: 27px; margin: 0 0 5px; }
+.muted, .section-intro { color: var(--muted); }
+.section-intro { margin: 0 0 20px; font-size: 14px; }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 18px rgba(30,50,90,.04);
+    min-width: 0;
+}
+
+.card h2 { margin: 0 0 6px; font-size: 20px; }
+.card h3 { margin: 16px 0 8px; font-size: 16px; }
+.section-description { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 20px 0;
+}
+
+.summary-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 17px;
+    min-width: 0;
+}
+
+.summary-card .label { color: var(--muted); font-size: 13px; }
+
+.summary-card .value {
+    font-size: 23px;
+    font-weight: bold;
+    margin-top: 5px;
+    overflow-wrap: anywhere;
+}
+
+.career-highlight { border-top: 4px solid var(--purple); }
+.career-name { color: var(--blue); font-size: 25px; font-weight: bold; }
+
+.progress-track {
+    height: 10px;
+    width: 100%;
+    background: #e9edf5;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    border-radius: 20px;
+}
+
+.pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    margin: 10px 0;
+    list-style: none;
+}
+
+.pill {
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    background: #eef2ff;
+    color: #3730a3;
+    overflow-wrap: anywhere;
+}
+
+.pill.green { background: #dcfce7; color: #166534; }
+.pill.red { background: #fee2e2; color: #991b1b; }
+.pill.gray { background: #f1f5f9; color: #334155; }
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    padding: 11px 0;
+}
+
+.stat-value { font-weight: bold; text-align: right; overflow-wrap: anywhere; }
+
+.job-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 14px;
+}
+
+.job-card h3 { margin: 0; font-size: 18px; }
+.job-match { color: var(--purple); font-weight: bold; font-size: 14px; }
+
+.job-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    padding: 0;
+    list-style: none;
+    margin: 14px 0 0;
+}
+
+.job-list li {
+    background: #f6f8ff;
+    border: 1px solid #e5e9ff;
+    padding: 10px 12px;
+    border-radius: 9px;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.numbered-list { padding-left: 22px; }
+.numbered-list li { margin: 9px 0; }
+
+.career-row { padding: 14px 0; border-bottom: 1px solid var(--border); }
+
+.career-row-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-weight: bold;
+}
+
+.button {
+    display: inline-block;
+    padding: 11px 17px;
+    margin: 8px 5px 0 0;
+    border: 0;
+    border-radius: 9px;
+    background: var(--blue);
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button:hover { background: #1d4ed8; }
+.button.secondary { background: #eef2ff; color: #3730a3; }
+.button.secondary:hover { background: #e0e7ff; }
+
+.notice {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    margin-top: 14px;
+}
+
+.error {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #9f1239;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+}
+
+footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px; }
+.mobile-overlay { display: none; }
+
+@media (max-width: 1000px) {
+    .main-area { margin-left: 0; }
+    .sidebar { box-shadow: 10px 0 35px rgba(15,23,42,.12); }
+
+    body:not(.sidebar-collapsed) .mobile-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 900;
+        background: rgba(15,23,42,.35);
+    }
+}
+
+@media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    main { width: 92%; margin-top: 20px; }
+    .topbar { padding: 12px 16px; }
+}
+
+@media (max-width: 480px) {
+    .welcome h1 { font-size: 23px; }
+    .summary-card { padding: 12px; }
+    .summary-card .value { font-size: 19px; }
+    .card { padding: 17px; }
+    .job-list { grid-template-columns: 1fr; }
+    .career-row-top { flex-direction: column; gap: 2px; }
+}
+</style>
+</head>
+
+<body class="sidebar-collapsed">
+
+<aside class="sidebar" id="sidebar">
+    <div class="brand">
+        <strong>AI Career Navigation System</strong>
+        <small>Your personalized dashboard</small>
+    </div>
+
+    <div class="nav-heading">All Sections</div>
+
+    <nav class="sidebar-nav">
+        <button class="nav-link active" data-section="overview"><span class="nav-icon">⌂</span>Overview</button>
+        <button class="nav-link" data-section="best-career"><span class="nav-icon">◎</span>Best-Matched Career</button>
+        <button class="nav-link" data-section="job-roles"><span class="nav-icon">▣</span>Recommended Job Roles</button>
+        <button class="nav-link" data-section="career-list"><span class="nav-icon">☷</span>All 25 Career Recommendations</button>
+        <button class="nav-link" data-section="skill-gap"><span class="nav-icon">⌘</span>Skill Gap Analysis</button>
+        <button class="nav-link" data-section="career-trends"><span class="nav-icon">↗</span>Career Trend Analysis</button>
+        <button class="nav-link" data-section="resume-quality"><span class="nav-icon">▤</span>Resume Quality Analysis</button>
+        <button class="nav-link" data-section="job-readiness"><span class="nav-icon">◉</span>Job Readiness</button>
+        <button class="nav-link" data-section="roadmap"><span class="nav-icon">➜</span>Learning Roadmap</button>
+        <button class="nav-link" data-section="skills-analysis"><span class="nav-icon">⌘</span>Skills Analysis</button>
+        <button class="nav-link" data-section="guidance"><span class="nav-icon">✧</span>Personalized Guidance</button>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <a href="{{ url_for('home') }}">＋ Analyze Another Resume</a>
+    </div>
+</aside>
+
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
+<div class="main-area">
+    <header class="topbar">
+        <button type="button" class="toggle-button" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+            <div class="topbar-title">Career Analysis Dashboard</div>
+            <div class="topbar-subtitle">Explore your results section by section</div>
+        </div>
+    </header>
+
+    <main>
+        {% if resume_error %}
+        <div class="error">{{ resume_error }}</div>
+        {% endif %}
+
+        <!-- OVERVIEW -->
+        <section class="section-view active" id="section-overview">
+            <div class="welcome">
+                <h1>{% if name %}Welcome, {{ name }}!{% else %}Your Career Analysis{% endif %}</h1>
+                <p class="muted">Choose a section from the sidebar to explore your complete analysis.</p>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card"><div class="label">Top Career Match</div><div class="value">{{ top_career }}</div></div>
+                <div class="summary-card"><div class="label">Skill Match</div><div class="value">{{ skill_gap_data.percentage }}%</div></div>
+                <div class="summary-card"><div class="label">Resume Quality</div><div class="value">{{ resume_quality.score }}%</div></div>
+                <div class="summary-card"><div class="label">Job Readiness</div><div class="value">{{ job_readiness.score }}%</div></div>
+            </div>
+
+            <section class="card career-highlight">
+                <h2>Career Snapshot</h2>
+                <p class="section-description">Your highest-matched career based on the skills in your profile and resume.</p>
+                <div class="career-name">{{ top_career }}</div>
+
+                {% if career_recommendations %}
+                <p>Career match: <strong>{{ career_recommendations[0].match }}%</strong></p>
+                <div class="progress-track"><div class="progress-fill" style="width: {{ career_recommendations[0].match }}%;"></div></div>
+                {% endif %}
+
+                <p class="muted">Education: {{ education if education else "Not provided" }}<br>Experience: {{ experience if experience else "Not provided" }}</p>
+                <button class="button" data-go="best-career">View Best-Matched Career</button>
+                <button class="button secondary" data-go="job-roles">Explore Job Roles</button>
+            </section>
+
+            <div class="grid">
+                <section class="card">
+                    <h2>Skill Match at a Glance</h2>
+                    <p class="section-description">Your current match for {{ skill_gap_data.career }}.</p>
+                    <strong>{{ skill_gap_data.percentage }}%</strong>
+                    <div class="progress-track"><div class="progress-fill" style="width: {{ skill_gap_data.percentage }}%;"></div></div>
+                    <button class="button secondary" data-go="skill-gap">View Skill Gap</button>
+                </section>
+
+                <section class="card">
+                    <h2>Next Steps</h2>
+                    <p><strong>Resume quality:</strong> {{ resume_quality.label }}</p>
+                    <p><strong>Job readiness:</strong> {{ job_readiness.label }}</p>
+                    <button class="button secondary" data-go="roadmap">Open Learning Roadmap</button>
+                </section>
+            </div>
+
+            <div class="notice">Career trend descriptions are illustrative project data, not live job-market statistics or a guarantee of employment.</div>
+        </section>
+
+        <!-- BEST-MATCHED CAREER -->
+        <section class="section-view" id="section-best-career">
+            <h1 class="section-heading">Your Best-Matched Career</h1>
+            <p class="section-intro">Your highest-ranked career based on your current technical skills.</p>
+
+            <section class="card career-highlight">
+                <div class="career-name">{{ top_career }}</div>
+
+                {% if career_recommendations %}
+                <p>Career match: <strong>{{ career_recommendations[0].match }}%</strong></p>
+                <div class="progress-track"><div class="progress-fill" style="width: {{ career_recommendations[0].match }}%;"></div></div>
+                {% endif %}
+
+                <div class="stat-row"><span>Education</span><span class="stat-value">{{ education if education else "Not provided" }}</span></div>
+                <div class="stat-row"><span>Experience</span><span class="stat-value">{{ experience if experience else "Not provided" }}</span></div>
+            </section>
+
+            <section class="card">
+                <h2>Explore This Career</h2>
+                <p class="section-description">Review the required skills and career trend to plan your next steps.</p>
+                <button class="button" data-go="skill-gap">Check Required Skills</button>
+                <button class="button secondary" data-go="career-trends">View Career Trend</button>
+            </section>
+        </section>
+
+        <!-- RECOMMENDED JOB ROLES -->
+        <section class="section-view" id="section-job-roles">
+            <h1 class="section-heading">Recommended Job Roles</h1>
+            <p class="section-intro">Role examples for your highest-matched careers. These are suggested job titles, not confirmed live vacancies.</p>
+
+            {% if recommended_job_roles %}
+                {% for career_item in recommended_job_roles %}
+                <div class="job-card">
+                    <h3>{{ loop.index }}. {{ career_item.career }}</h3>
+                    <p class="job-match">Career match: {{ career_item.match }}%</p>
+                    <div class="progress-track"><div class="progress-fill" style="width: {{ career_item.match }}%;"></div></div>
+
+                    <ul class="job-list">
+                        {% for role in career_item.roles %}
+                        <li>{{ role }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card muted">No job role examples are available yet.</div>
+            {% endif %}
+        </section>
+
+        <!-- ALL CAREERS -->
+        <section class="section-view" id="section-career-list">
+            <h1 class="section-heading">All 25 Career Recommendations</h1>
+            <p class="section-intro">Careers are ranked by the percentage of required skills that match your technical skills.</p>
+
+            <section class="card">
+                {% for item in career_recommendations %}
+                <div class="career-row">
+                    <div class="career-row-top">
+                        <span>{{ loop.index }}. {{ item.career }}</span>
+                        <span>{{ item.match }}%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill" style="width: {{ item.match }}%;"></div></div>
+                    <p class="muted" style="font-size:13px;margin:4px 0 0;">Matched {{ item.matched|length }} of {{ item.required|length }} listed skills</p>
+                </div>
+                {% else %}
+                <p class="muted">No career recommendations are available.</p>
+                {% endfor %}
+            </section>
+        </section>
+
+        <!-- SKILL GAP -->
+        <section class="section-view" id="section-skill-gap">
+            <h1 class="section-heading">Skill Gap Analysis</h1>
+            <p class="section-intro">See which skills you have and which skills you can learn for your target career.</p>
+
+            <section class="card">
+                <p class="section-description">Career: <strong>{{ skill_gap_data.career }}</strong></p>
+                <p>Skill match: <strong>{{ skill_gap_data.percentage }}%</strong></p>
+                <div class="progress-track"><div class="progress-fill" style="width: {{ skill_gap_data.percentage }}%;"></div></div>
+
+                <h3>Matched Skills</h3>
+                {% if skill_gap_data.matched %}
+                <ul class="pill-list">{% for skill in skill_gap_data.matched %}<li class="pill green">{{ skill }}</li>{% endfor %}</ul>
+                {% else %}
+                <p class="muted">No required skills matched yet.</p>
+                {% endif %}
+
+                <h3>Skills to Learn</h3>
+                {% if skill_gap_data.missing %}
+                <ul class="pill-list">{% for skill in skill_gap_data.missing %}<li class="pill red">{{ skill }}</li>{% endfor %}</ul>
+                {% else %}
+                <p class="muted">All skills in this career's current checklist are matched.</p>
+                {% endif %}
+
+                <h3>Skills Required for {{ skill_gap_data.career }}</h3>
+                <ul class="pill-list">{% for skill in skill_gap_data.required %}<li class="pill gray">{{ skill }}</li>{% endfor %}</ul>
+            </section>
+
+            <button class="button" data-go="roadmap">Go to Learning Roadmap</button>
+        </section>
+
+        <!-- CAREER TRENDS -->
+        <section class="section-view" id="section-career-trends">
+            <h1 class="section-heading">Career Trend Analysis</h1>
+            <p class="section-intro">Indicative trend information stored in this project.</p>
+
+            <section class="card">
+                <p class="section-description">Career: <strong>{{ career_trend.career }}</strong></p>
+                <div class="stat-row"><span>Career</span><span class="stat-value">{{ career_trend.career }}</span></div>
+                <div class="stat-row"><span>Indicative Demand</span><span class="stat-value">{{ career_trend.demand }}</span></div>
+                <div class="stat-row"><span>Growth Outlook</span><span class="stat-value">{{ career_trend.growth }}</span></div>
+
+                <h3>Future Outlook</h3>
+                <p>{{ career_trend.future }}</p>
+
+                <div class="notice">Trend descriptions are illustrative project data, not live job-market statistics or a guarantee of employment.</div>
+            </section>
+        </section>
+
+        <!-- RESUME QUALITY -->
+        <section class="section-view" id="section-resume-quality">
+            <h1 class="section-heading">Resume Quality Analysis</h1>
+            <p class="section-intro">Review your current resume assessment and checklist.</p>
+
+            <section class="card">
+                <p class="section-description">Overall assessment: <strong>{{ resume_quality.label }}</strong></p>
+                <div style="font-size:28px;font-weight:bold;">{{ resume_quality.score }}%</div>
+                <div class="progress-track"><div class="progress-fill" style="width: {{ resume_quality.score }}%;"></div></div>
+                <ul class="numbered-list">{% for check in resume_quality.checks %}<li>{{ check }}</li>{% endfor %}</ul>
+            </section>
+        </section>
+
+        <!-- JOB READINESS -->
+        <section class="section-view" id="section-job-readiness">
+            <h1 class="section-heading">Job Readiness</h1>
+            <p class="section-intro">An indication of your current preparation for {{ top_career }}.</p>
+
+            <section class="card">
+                <p class="section-description">Assessment for <strong>{{ top_career }}</strong></p>
+                <div style="font-size:28px;font-weight:bold;">{{ job_readiness.score }}%</div>
+                <div class="progress-track"><div class="progress-fill" style="width: {{ job_readiness.score }}%;"></div></div>
+                <p><strong>{{ job_readiness.label }}</strong></p>
+                <p>{{ job_readiness.advice }}</p>
+            </section>
+        </section>
+
+        <!-- LEARNING ROADMAP -->
+        <section class="section-view" id="section-roadmap">
+            <h1 class="section-heading">Personalized Learning Roadmap</h1>
+            <p class="section-intro">Suggested learning plan for <strong>{{ top_career }}</strong>.</p>
+
+            <section class="card">
+                <ol class="numbered-list">
+                    {% for step in learning_roadmap %}
+                    <li>
+                        {% if step is string %}
+                            {{ step }}
+                        {% else %}
+                            <strong>{{ step.skill }}</strong>
+                            <ul>
+                                {% for detail in step.steps %}
+                                <li>{{ detail }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                    {% else %}
+                    <li>No roadmap steps are available yet.</li>
+                    {% endfor %}
+                </ol>
+            </section>
+
+            <button class="button" data-go="skill-gap">Review Missing Skills</button>
+        </section>
+
+        <!-- SKILLS ANALYSIS -->
+        <section class="section-view" id="section-skills-analysis">
+            <h1 class="section-heading">Skills Analysis</h1>
+            <p class="section-intro">Review your technical skills, detected soft skills, and comparison between entered skills and resume skills.</p>
+
+            <section class="card">
+                <h2>Combined Technical Skills</h2>
+                <p class="section-description">Technical skills from your form and readable resume text.</p>
+                {% if combined_skills %}
+                <ul class="pill-list">
+                    {% for skill in combined_skills %}
+                    <li class="pill">{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="muted">No technical skills were detected or entered.</p>
+                {% endif %}
+            </section>
+
+            <section class="card">
+                <h2>Soft Skills Detected</h2>
+                <p class="section-description">Soft skills identified in the readable resume text.</p>
+                {% if resume_soft_skills %}
+                <ul class="pill-list">
+                    {% for skill in resume_soft_skills %}
+                    <li class="pill">{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="muted">No listed soft skills were detected in the readable resume text.</p>
+                {% endif %}
+            </section>
+
+            <section class="card">
+                <h2>Entered Skills vs Resume Skills</h2>
+                <p class="section-description">Compare form skills with skills extracted from the uploaded PDF.</p>
+
+                <h3>Present in Both</h3>
+                {% if skill_comparison.matched %}
+                <ul class="pill-list">
+                    {% for skill in skill_comparison.matched %}
+                    <li class="pill green">{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="muted">No overlapping skills found.</p>
+                {% endif %}
+
+                <h3>Only in Entered Skills</h3>
+                {% if skill_comparison.only_profile %}
+                <ul class="pill-list">
+                    {% for skill in skill_comparison.only_profile %}
+                    <li class="pill">{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="muted">No additional entered skills.</p>
+                {% endif %}
+
+                <h3>Only in Resume</h3>
+                {% if skill_comparison.only_resume %}
+                <ul class="pill-list">
+                    {% for skill in skill_comparison.only_resume %}
+                    <li class="pill">{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="muted">No additional resume skills detected.</p>
+                {% endif %}
+            </section>
+
+            <button class="button" data-go="overview">Back to Overview</button>
+        </section>
+
+        <!-- PERSONALIZED GUIDANCE -->
+        <section class="section-view" id="section-guidance">
+            <h1 class="section-heading">Personalized Career Guidance</h1>
+            <p class="section-intro">Suggested next steps based on your current analysis.</p>
+
+            <section class="card">
+                <ol class="numbered-list">
+                    {% for tip in personalized_guidance %}
+                    <li>{{ tip }}</li>
+                    {% else %}
+                    <li>No personalized guidance is available yet.</li>
+                    {% endfor %}
+                </ol>
+            </section>
+
+            <button class="button" data-go="overview">Back to Overview</button>
+        </section>
+
+        <a class="button" href="{{ url_for('home') }}">Analyze Another Resume</a>
+    </main>
+
+    <footer>AI Career Navigation System · Career recommendations are guidance, not a job guarantee.</footer>
+</div>
+
+<script>
+(function () {
+    const body = document.body;
+    const toggle = document.getElementById("sidebarToggle");
+    const overlay = document.getElementById("mobileOverlay");
+    const links = Array.from(document.querySelectorAll(".nav-link[data-section]"));
+    const sections = Array.from(document.querySelectorAll(".section-view"));
+    const title = document.querySelector(".topbar-title");
+    const subtitle = document.querySelector(".topbar-subtitle");
+
+    function isMobile() {
+        return window.matchMedia("(max-width: 1000px)").matches;
+    }
+
+    function setCollapsed(collapsed) {
+        body.classList.toggle("sidebar-collapsed", collapsed);
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+        toggle.setAttribute("aria-label", collapsed ? "Open sidebar" : "Collapse sidebar");
+    }
+
+    function showSection(name) {
+        const selected = document.getElementById("section-" + name);
+        if (!selected) return;
+
+        sections.forEach(function (section) {
+            section.classList.toggle("active", section === selected);
+        });
+
+        links.forEach(function (link) {
+            const active = link.dataset.section === name;
+            link.classList.toggle("active", active);
+
+            if (active) {
+                link.setAttribute("aria-current", "page");
+            } else {
+                link.removeAttribute("aria-current");
+            }
+        });
+
+        const activeLink = links.find(function (link) {
+            return link.dataset.section === name;
+        });
+
+        title.textContent = activeLink
+            ? activeLink.textContent.trim()
+            : "Career Analysis Dashboard";
+
+        subtitle.textContent = "Your personalized career analysis";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        if (isMobile()) {
+            setCollapsed(true);
+        }
+    }
+
+    toggle.addEventListener("click", function () {
+        setCollapsed(!body.classList.contains("sidebar-collapsed"));
+    });
+
+    links.forEach(function (link) {
+        link.addEventListener("click", function () {
+            showSection(link.dataset.section);
+        });
+    });
+
+    document.querySelectorAll("[data-go]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            showSection(button.dataset.go);
+        });
+    });
+
+    overlay.addEventListener("click", function () {
+        setCollapsed(true);
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && isMobile()) {
+            setCollapsed(true);
+        }
+    });
+
+    window.addEventListener("resize", function () {
+        setCollapsed(isMobile());
+    });
+
+    setCollapsed(isMobile());
+})();
+</script>
+
+</body>
+</html>

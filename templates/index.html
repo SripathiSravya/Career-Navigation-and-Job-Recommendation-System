@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AI Career Navigator</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f6f8ff;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           HEADER
+        ========================== */
+
+        .header {
+
+            background: linear-gradient(
+                135deg,
+                #2563eb,
+                #4f46e5,
+                #7c3aed
+            );
+
+            color: white;
+
+            padding: 20px 8%;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            box-shadow:
+                0 4px 15px rgba(37, 99, 235, 0.2);
+        }
+
+        .logo {
+
+            font-size: 24px;
+
+            font-weight: 700;
+        }
+
+        .header-text {
+
+            font-size: 14px;
+
+            opacity: 0.9;
+        }
+
+
+        /* =========================
+           HERO
+        ========================== */
+
+        .hero {
+
+            text-align: center;
+
+            padding: 55px 20px 35px;
+        }
+
+        .hero h1 {
+
+            font-size: 42px;
+
+            color: #111827;
+
+            margin-bottom: 15px;
+        }
+
+        .hero h1 span {
+
+            color: #4f46e5;
+        }
+
+        .hero p {
+
+            max-width: 700px;
+
+            margin: auto;
+
+            color: #6b7280;
+
+            font-size: 17px;
+
+            line-height: 1.7;
+        }
+
+
+        /* =========================
+           MAIN CONTAINER
+        ========================== */
+
+        .container {
+
+            width: 90%;
+
+            max-width: 1100px;
+
+            margin: 0 auto 60px;
+        }
+
+
+        /* =========================
+           ERROR MESSAGE
+        ========================== */
+
+        .error-box {
+
+            background: #fef2f2;
+
+            border: 1px solid #fecaca;
+
+            color: #b91c1c;
+
+            padding: 16px 20px;
+
+            border-radius: 12px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 5px 15px rgba(185, 28, 28, 0.05);
+        }
+
+        .error-box p {
+
+            margin: 5px 0;
+
+            line-height: 1.5;
+
+            font-size: 14px;
+        }
+
+
+        /* =========================
+           FORM CARD
+        ========================== */
+
+        .form-card {
+
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 35px;
+
+            box-shadow:
+                0 10px 35px rgba(31, 41, 55, 0.08);
+
+            border: 1px solid #e5e7eb;
+        }
+
+        .section-title {
+
+            font-size: 23px;
+
+            color: #111827;
+
+            margin-bottom: 8px;
+        }
+
+        .section-description {
+
+            color: #6b7280;
+
+            margin-bottom: 30px;
+
+            line-height: 1.6;
+        }
+
+
+        /* =========================
+           FORM GRID
+        ========================== */
+
+        .form-grid {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 22px;
+        }
+
+        .form-group {
+
+            display: flex;
+
+            flex-direction: column;
+        }
+
+        .full-width {
+
+            grid-column: 1 / -1;
+        }
+
+        label {
+
+            font-weight: 600;
+
+            color: #374151;
+
+            margin-bottom: 8px;
+
+            font-size: 14px;
+        }
+
+        input,
+        textarea,
+        select {
+
+            width: 100%;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 10px;
+
+            padding: 13px 14px;
+
+            font-size: 15px;
+
+            font-family: inherit;
+
+            background: #fff;
+
+            color: #111827;
+
+            outline: none;
+
+            transition: 0.2s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+
+            border-color: #4f46e5;
+
+            box-shadow:
+                0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        textarea {
+
+            min-height: 120px;
+
+            resize: vertical;
+        }
+
+        .hint {
+
+            font-size: 12px;
+
+            color: #6b7280;
+
+            margin-top: 6px;
+        }
+
+
+        /* =========================
+           RESUME UPLOAD
+        ========================== */
+
+        .upload-box {
+
+            border: 2px dashed #a5b4fc;
+
+            background: #f8faff;
+
+            border-radius: 14px;
+
+            padding: 25px;
+
+            text-align: center;
+
+            transition: 0.2s;
+        }
+
+        .upload-box:hover {
+
+            border-color: #6366f1;
+
+            background: #f5f3ff;
+        }
+
+        .upload-icon {
+
+            font-size: 35px;
+
+            margin-bottom: 10px;
+        }
+
+        .upload-title {
+
+            font-weight: 700;
+
+            color: #374151;
+
+            margin-bottom: 5px;
+        }
+
+        .upload-description {
+
+            color: #6b7280;
+
+            font-size: 13px;
+
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+
+            border: none;
+
+            padding: 5px;
+
+            background: transparent;
+        }
+
+        .file-input:focus {
+
+            box-shadow: none;
+        }
+
+
+        /* =========================
+           BUTTON
+        ========================== */
+
+        .button-container {
+
+            margin-top: 30px;
+
+            text-align: center;
+        }
+
+        .analyze-button {
+
+            border: none;
+
+            background: linear-gradient(
+                135deg,
+                #2563eb,
+                #4f46e5,
+                #7c3aed
+            );
+
+            color: white;
+
+            padding: 15px 35px;
+
+            border-radius: 12px;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+
+            box-shadow:
+                0 8px 20px rgba(79, 70, 229, 0.25);
+        }
+
+        .analyze-button:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 12px 25px rgba(79, 70, 229, 0.3);
+        }
+
+
+        /* =========================
+           FEATURES
+        ========================== */
+
+        .features-title {
+
+            text-align: center;
+
+            margin: 55px 0 25px;
+
+            font-size: 25px;
+
+            color: #111827;
+        }
+
+        .features {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 18px;
+        }
+
+        .feature-card {
+
+            background: white;
+
+            padding: 25px 20px;
+
+            border-radius: 16px;
+
+            border: 1px solid #e5e7eb;
+
+            box-shadow:
+                0 7px 25px rgba(31, 41, 55, 0.05);
+
+            text-align: center;
+
+            transition: 0.2s;
+        }
+
+        .feature-card:hover {
+
+            transform: translateY(-4px);
+
+            box-shadow:
+                0 12px 30px rgba(31, 41, 55, 0.09);
+        }
+
+        .feature-icon {
+
+            font-size: 32px;
+
+            margin-bottom: 12px;
+        }
+
+        .feature-card h3 {
+
+            font-size: 16px;
+
+            color: #1f2937;
+
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+            color: #6b7280;
+        }
+
+
+        /* =========================
+           FOOTER
+        ========================== */
+
+        .footer {
+
+            text-align: center;
+
+            padding: 25px;
+
+            color: #6b7280;
+
+            font-size: 13px;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media (max-width: 850px) {
+
+            .features {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+            .form-grid {
+
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+
+                grid-column: auto;
+            }
+
+            .hero h1 {
+
+                font-size: 34px;
+            }
+        }
+
+
+        @media (max-width: 550px) {
+
+            .header {
+
+                padding: 18px 5%;
+            }
+
+            .header-text {
+
+                display: none;
+            }
+
+            .hero {
+
+                padding-top: 40px;
+            }
+
+            .hero h1 {
+
+                font-size: 30px;
+            }
+
+            .container {
+
+                width: 94%;
+            }
+
+            .form-card {
+
+                padding: 22px;
+            }
+
+            .features {
+
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header class="header">
+
+        <div class="logo">
+            AI Career Navigator
+        </div>
+
+        <div class="header-text">
+            Personalized Career Recommendation System
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         HERO
+    ========================== -->
+
+    <section class="hero">
+
+        <h1>
+            Discover Your
+            <span>Career Path</span>
+        </h1>
+
+        <p>
+
+            Enter your profile details and upload your resume.
+            Our AI-powered career recommendation system analyzes
+            your skills, resume, career requirements, and skill gaps
+            to provide personalized career guidance.
+
+        </p>
+
+    </section>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="container">
+
+
+        <!-- =========================
+             ERROR MESSAGES
+        ========================== -->
+
+        {% if error_messages %}
+
+        <div class="error-box">
+
+            {% for message in error_messages %}
+
+            <p>
+                ⚠️ {{ message }}
+            </p>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+
+        {% if resume_error %}
+
+        <div class="error-box">
+
+            <p>
+                ⚠️ {{ resume_error }}
+            </p>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- =========================
+             FORM CARD
+        ========================== -->
+
+        <div class="form-card">
+
+
+            <h2 class="section-title">
+
+                Build Your Career Profile
+
+            </h2>
+
+
+            <p class="section-description">
+
+                Provide your basic details, enter your current skills,
+                and upload your resume for analysis.
+
+            </p>
+
+
+            <!-- =========================
+                 ANALYSIS FORM
+            ========================== -->
+
+            <form
+                action="/analyze"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+
+                <div class="form-grid">
+
+
+                    <!-- =========================
+                         NAME
+                    ========================== -->
+
+                    <div class="form-group">
+
+                        <label for="name">
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="Enter your full name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- =========================
+                         EDUCATION
+                    ========================== -->
+
+                    <div class="form-group">
+
+                        <label for="education">
+                            Education
+                        </label>
+
+                        <input
+                            type="text"
+                            id="education"
+                            name="education"
+                            placeholder="Example: B.Tech Information Technology"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- =========================
+                         SKILLS
+                    ========================== -->
+
+                    <div class="form-group full-width">
+
+                        <label for="skills">
+                            Current Skills
+                        </label>
+
+                        <textarea
+                            id="skills"
+                            name="skills"
+                            placeholder="Enter your current skills separated by commas. Example: Python, Java, SQL, HTML, CSS"
+                            required
+                        ></textarea>
+
+                        <div class="hint">
+
+                            Enter the skills you currently know.
+                            Resume skills will also be analyzed.
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================
+                         EXPERIENCE
+                    ========================== -->
+
+                    <div class="form-group">
+
+                        <label for="experience">
+                            Experience
+                        </label>
+
+                        <select
+                            id="experience"
+                            name="experience"
+                            required
+                        >
+
+                            <option value="Fresher">
+                                Fresher
+                            </option>
+
+                            <option value="0-1 years">
+                                0-1 years
+                            </option>
+
+                            <option value="1-2 years">
+                                1-2 years
+                            </option>
+
+                            <option value="2-5 years">
+                                2-5 years
+                            </option>
+
+                            <option value="5+ years">
+                                5+ years
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- =========================
+                         RESUME
+                    ========================== -->
+
+                    <div class="form-group">
+
+                        <label for="resume">
+                            Upload Resume
+                        </label>
+
+                        <div class="upload-box">
+
+                            <div class="upload-icon">
+                                📄
+                            </div>
+
+                            <div class="upload-title">
+                                Upload Your Resume
+                            </div>
+
+                            <div class="upload-description">
+
+                                Upload your own PDF resume.
+                                You do not need to place it inside VS Code.
+
+                            </div>
+
+                            <input
+                                class="file-input"
+                                type="file"
+                                id="resume"
+                                name="resume"
+                                accept=".pdf,application/pdf"
+                                required
+                            >
+
+                            <div class="hint">
+                                PDF files only • Maximum 5 MB
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =========================
+                     BUTTON
+                ========================== -->
+
+                <div class="button-container">
+
+                    <button
+                        type="submit"
+                        class="analyze-button"
+                    >
+
+                        Analyze My Career
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
+
+        </div>
+
+
+        <!-- =========================
+             FEATURES
+        ========================== -->
+
+        <h2 class="features-title">
+
+            What You'll Get
+
+        </h2>
+
+
+        <div class="features">
+
+
+            <!-- Career Recommendations -->
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    🎯
+                </div>
+
+                <h3>
+                    Career Recommendations
+                </h3>
+
+                <p>
+
+                    Get career options based on your
+                    current skills and profile.
+
+                </p>
+
+            </div>
+
+
+            <!-- Skill Gap -->
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    📊
+                </div>
+
+                <h3>
+                    Skill Gap Analysis
+                </h3>
+
+                <p>
+
+                    Identify the skills you already have
+                    and the skills you need to improve.
+
+                </p>
+
+            </div>
+
+
+            <!-- Career Trend -->
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    📈
+                </div>
+
+                <h3>
+                    Career Trend Analysis
+                </h3>
+
+                <p>
+
+                    Understand the demand, growth,
+                    and future potential of your career.
+
+                </p>
+
+            </div>
+
+
+            <!-- Learning Roadmap -->
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    🗺️
+                </div>
+
+                <h3>
+                    Learning Roadmap
+                </h3>
+
+                <p>
+
+                    Follow a structured roadmap to
+                    develop the skills required for your career.
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        AI Career Navigator
+        • Personalized Career Guidance
+
+    </footer>
+
+
+    <!-- =========================
+         FILE VALIDATION
+    ========================== -->
+
+    <script>
+
+        const resumeInput =
+            document.getElementById("resume");
+
+
+        resumeInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    this.files[0];
+
+
+                if (!file) {
+
+                    return;
+
+                }
+
+
+                const fileName =
+                    file.name.toLowerCase();
+
+
+                if (!fileName.endsWith(".pdf")) {
+
+                    alert(
+                        "Please upload a PDF resume."
+                    );
+
+
+                    this.value = "";
+
+
+                    return;
+
+                }
+
+
+                /* Check file size */
+
+                const maxSize =
+                    5 * 1024 * 1024;
+
+
+                if (file.size > maxSize) {
+
+                    alert(
+                        "Resume file must be smaller than 5 MB."
+                    );
+
+
+                    this.value = "";
+
+
+                    return;
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+</body>
+
+</html>
