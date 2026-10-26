@@ -380,7 +380,7 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
     </nav>
 
     <div class="sidebar-bottom">
-        <a href="{{ url_for('home') }}">＋ Analyze Another Resume</a>
+       <a href="{{ url_for('index') }}">＋ Analyze Another Resume</a>
     </div>
 </aside>
 
@@ -408,23 +408,44 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
             </div>
 
             <div class="summary-grid">
-                <div class="summary-card"><div class="label">Top Career Match</div><div class="value">{{ top_career }}</div></div>
-                <div class="summary-card"><div class="label">Skill Match</div><div class="value">{{ skill_gap_data.percentage }}%</div></div>
-                <div class="summary-card"><div class="label">Resume Quality</div><div class="value">{{ resume_quality.score }}%</div></div>
-                <div class="summary-card"><div class="label">Job Readiness</div><div class="value">{{ job_readiness.score }}%</div></div>
+                <div class="summary-card">
+                    <div class="label">Top Career Match</div>
+                    <div class="value">{{ top_career or "Not available" }}</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="label">Skill Match</div>
+                    <div class="value">{{ skill_gap_data.readiness_percentage|default(0) }}%</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="label">Resume Quality</div>
+                    <div class="value">{{ resume_quality.score|default(0) }}%</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="label">Job Readiness</div>
+                    <div class="value">{{ job_readiness.score|default(0) }}%</div>
+                </div>
             </div>
 
             <section class="card career-highlight">
                 <h2>Career Snapshot</h2>
                 <p class="section-description">Your highest-matched career based on the skills in your profile and resume.</p>
-                <div class="career-name">{{ top_career }}</div>
+                <div class="career-name">{{ top_career or "No career available" }}</div>
 
                 {% if career_recommendations %}
-                <p>Career match: <strong>{{ career_recommendations[0].match }}%</strong></p>
-                <div class="progress-track"><div class="progress-fill" style="width: {{ career_recommendations[0].match }}%;"></div></div>
+                <p>Career match: <strong>{{ career_recommendations[0].match_percentage }}%</strong></p>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: {{ career_recommendations[0].match_percentage }}%;"></div>
+                </div>
                 {% endif %}
 
-                <p class="muted">Education: {{ education if education else "Not provided" }}<br>Experience: {{ experience if experience else "Not provided" }}</p>
+                <p class="muted">
+                    Education: {{ education if education else "Not provided" }}<br>
+                    Experience: {{ experience if experience else "Not provided" }}
+                </p>
+
                 <button class="button" data-go="best-career">View Best-Matched Career</button>
                 <button class="button secondary" data-go="job-roles">Explore Job Roles</button>
             </section>
@@ -433,15 +454,17 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
                 <section class="card">
                     <h2>Skill Match at a Glance</h2>
                     <p class="section-description">Your current match for {{ skill_gap_data.career }}.</p>
-                    <strong>{{ skill_gap_data.percentage }}%</strong>
-                    <div class="progress-track"><div class="progress-fill" style="width: {{ skill_gap_data.percentage }}%;"></div></div>
+                    <strong>{{ skill_gap_data.readiness_percentage|default(0) }}%</strong>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: {{ skill_gap_data.readiness_percentage|default(0) }}%;"></div>
+                    </div>
                     <button class="button secondary" data-go="skill-gap">View Skill Gap</button>
                 </section>
 
                 <section class="card">
                     <h2>Next Steps</h2>
-                    <p><strong>Resume quality:</strong> {{ resume_quality.label }}</p>
-                    <p><strong>Job readiness:</strong> {{ job_readiness.label }}</p>
+                    <p><strong>Resume quality:</strong> {{ resume_quality.quality_level|default("Not available") }}</p>
+                    <p><strong>Job readiness:</strong> {{ job_readiness.level|default("Not available") }}</p>
                     <button class="button secondary" data-go="roadmap">Open Learning Roadmap</button>
                 </section>
             </div>
@@ -455,11 +478,37 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
             <p class="section-intro">Your highest-ranked career based on your current technical skills.</p>
 
             <section class="card career-highlight">
-                <div class="career-name">{{ top_career }}</div>
+                <div class="career-name">{{ top_career or "No career available" }}</div>
 
                 {% if career_recommendations %}
-                <p>Career match: <strong>{{ career_recommendations[0].match }}%</strong></p>
-                <div class="progress-track"><div class="progress-fill" style="width: {{ career_recommendations[0].match }}%;"></div></div>
+                <p>Career match: <strong>{{ career_recommendations[0].match_percentage }}%</strong></p>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: {{ career_recommendations[0].match_percentage }}%;"></div>
+                </div>
+
+                <h3>Matched Skills</h3>
+                {% if career_recommendations[0].matched_skills %}
+                <ul class="pill-list">
+                    {% for skill in career_recommendations[0].matched_skills %}
+                    <li class="pill green">{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="muted">No required skills matched yet.</p>
+                {% endif %}
+
+                <h3>Skills to Learn</h3>
+                {% if career_recommendations[0].missing_skills %}
+                <ul class="pill-list">
+                    {% for skill in career_recommendations[0].missing_skills %}
+                    <li class="pill red">{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="muted">All listed skills for this career are matched.</p>
+                {% endif %}
+                {% else %}
+                <p class="muted">Add skills to receive a career recommendation.</p>
                 {% endif %}
 
                 <div class="stat-row"><span>Education</span><span class="stat-value">{{ education if education else "Not provided" }}</span></div>
@@ -480,17 +529,14 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
             <p class="section-intro">Role examples for your highest-matched careers. These are suggested job titles, not confirmed live vacancies.</p>
 
             {% if recommended_job_roles %}
-                {% for career_item in recommended_job_roles %}
+                {% for role_item in recommended_job_roles %}
                 <div class="job-card">
-                    <h3>{{ loop.index }}. {{ career_item.career }}</h3>
-                    <p class="job-match">Career match: {{ career_item.match }}%</p>
-                    <div class="progress-track"><div class="progress-fill" style="width: {{ career_item.match }}%;"></div></div>
-
-                    <ul class="job-list">
-                        {% for role in career_item.roles %}
-                        <li>{{ role }}</li>
-                        {% endfor %}
-                    </ul>
+                    <h3>{{ loop.index }}. {{ role_item.career }}</h3>
+                    <p class="job-match">{{ role_item.job_title }}</p>
+                    <p class="job-match">Career match: {{ role_item.match_percentage }}%</p>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: {{ role_item.match_percentage }}%;"></div>
+                    </div>
                 </div>
                 {% endfor %}
             {% else %}
@@ -508,10 +554,14 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
                 <div class="career-row">
                     <div class="career-row-top">
                         <span>{{ loop.index }}. {{ item.career }}</span>
-                        <span>{{ item.match }}%</span>
+                        <span>{{ item.match_percentage }}%</span>
                     </div>
-                    <div class="progress-track"><div class="progress-fill" style="width: {{ item.match }}%;"></div></div>
-                    <p class="muted" style="font-size:13px;margin:4px 0 0;">Matched {{ item.matched|length }} of {{ item.required|length }} listed skills</p>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: {{ item.match_percentage }}%;"></div>
+                    </div>
+                    <p class="muted" style="font-size:13px;margin:4px 0 0;">
+                        Matched {{ item.total_matched_skills }} of {{ item.total_required_skills }} listed skills
+                    </p>
                 </div>
                 {% else %}
                 <p class="muted">No career recommendations are available.</p>
@@ -525,26 +575,42 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
             <p class="section-intro">See which skills you have and which skills you can learn for your target career.</p>
 
             <section class="card">
-                <p class="section-description">Career: <strong>{{ skill_gap_data.career }}</strong></p>
-                <p>Skill match: <strong>{{ skill_gap_data.percentage }}%</strong></p>
-                <div class="progress-track"><div class="progress-fill" style="width: {{ skill_gap_data.percentage }}%;"></div></div>
+                <p class="section-description">Career: <strong>{{ skill_gap_data.career or "Not available" }}</strong></p>
+                <p>Skill match: <strong>{{ skill_gap_data.readiness_percentage|default(0) }}%</strong></p>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: {{ skill_gap_data.readiness_percentage|default(0) }}%;"></div>
+                </div>
 
                 <h3>Matched Skills</h3>
-                {% if skill_gap_data.matched %}
-                <ul class="pill-list">{% for skill in skill_gap_data.matched %}<li class="pill green">{{ skill }}</li>{% endfor %}</ul>
+                {% if skill_gap_data.matched_skills %}
+                <ul class="pill-list">
+                    {% for skill in skill_gap_data.matched_skills %}
+                    <li class="pill green">{{ skill }}</li>
+                    {% endfor %}
+                </ul>
                 {% else %}
                 <p class="muted">No required skills matched yet.</p>
                 {% endif %}
 
                 <h3>Skills to Learn</h3>
-                {% if skill_gap_data.missing %}
-                <ul class="pill-list">{% for skill in skill_gap_data.missing %}<li class="pill red">{{ skill }}</li>{% endfor %}</ul>
+                {% if skill_gap_data.missing_skills %}
+                <ul class="pill-list">
+                    {% for skill in skill_gap_data.missing_skills %}
+                    <li class="pill red">{{ skill }}</li>
+                    {% endfor %}
+                </ul>
                 {% else %}
                 <p class="muted">All skills in this career's current checklist are matched.</p>
                 {% endif %}
 
                 <h3>Skills Required for {{ skill_gap_data.career }}</h3>
-                <ul class="pill-list">{% for skill in skill_gap_data.required %}<li class="pill gray">{{ skill }}</li>{% endfor %}</ul>
+                <ul class="pill-list">
+                    {% for skill in skill_gap_data.required_skills %}
+                    <li class="pill gray">{{ skill }}</li>
+                    {% else %}
+                    <li class="pill gray">No required skills available.</li>
+                    {% endfor %}
+                </ul>
             </section>
 
             <button class="button" data-go="roadmap">Go to Learning Roadmap</button>
@@ -574,10 +640,20 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
             <p class="section-intro">Review your current resume assessment and checklist.</p>
 
             <section class="card">
-                <p class="section-description">Overall assessment: <strong>{{ resume_quality.label }}</strong></p>
+                <p class="section-description">Overall assessment: <strong>{{ resume_quality.quality_level }}</strong></p>
                 <div style="font-size:28px;font-weight:bold;">{{ resume_quality.score }}%</div>
-                <div class="progress-track"><div class="progress-fill" style="width: {{ resume_quality.score }}%;"></div></div>
-                <ul class="numbered-list">{% for check in resume_quality.checks %}<li>{{ check }}</li>{% endfor %}</ul>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: {{ resume_quality.score }}%;"></div>
+                </div>
+
+                <h3>Suggestions</h3>
+                <ul class="numbered-list">
+                    {% for check in resume_quality.feedback %}
+                    <li>{{ check }}</li>
+                    {% else %}
+                    <li>Keep improving your resume and tailor it to your target career.</li>
+                    {% endfor %}
+                </ul>
             </section>
         </section>
 
@@ -587,11 +663,13 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
             <p class="section-intro">An indication of your current preparation for {{ top_career }}.</p>
 
             <section class="card">
-                <p class="section-description">Assessment for <strong>{{ top_career }}</strong></p>
+                <p class="section-description">Assessment for <strong>{{ top_career or "your target career" }}</strong></p>
                 <div style="font-size:28px;font-weight:bold;">{{ job_readiness.score }}%</div>
-                <div class="progress-track"><div class="progress-fill" style="width: {{ job_readiness.score }}%;"></div></div>
-                <p><strong>{{ job_readiness.label }}</strong></p>
-                <p>{{ job_readiness.advice }}</p>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: {{ job_readiness.score }}%;"></div>
+                </div>
+                <p><strong>{{ job_readiness.level }}</strong></p>
+                <p>{{ job_readiness.feedback }}</p>
             </section>
         </section>
 
@@ -604,16 +682,12 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
                 <ol class="numbered-list">
                     {% for step in learning_roadmap %}
                     <li>
-                        {% if step is string %}
-                            {{ step }}
-                        {% else %}
-                            <strong>{{ step.skill }}</strong>
-                            <ul>
-                                {% for detail in step.steps %}
-                                <li>{{ detail }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
+                        <strong>{{ step.skill }}</strong>
+                        <ul>
+                            {% for detail in step.steps %}
+                            <li>{{ detail }}</li>
+                            {% endfor %}
+                        </ul>
                     </li>
                     {% else %}
                     <li>No roadmap steps are available yet.</li>
@@ -716,7 +790,7 @@ footer { text-align: center; color: var(--muted); padding: 22px; font-size: 13px
             <button class="button" data-go="overview">Back to Overview</button>
         </section>
 
-        <a class="button" href="{{ url_for('home') }}">Analyze Another Resume</a>
+        <a class="button" href="{{ url_for('index') }}">Analyze Another Resume</a>
     </main>
 
     <footer>AI Career Navigation System · Career recommendations are guidance, not a job guarantee.</footer>
