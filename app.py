@@ -1594,6 +1594,12 @@ def analyze():
     profile_skills = get_form_skills(
         request.form.get("skills", "")
     )
+    # Server-side required field validation
+    if not name or not education or not experience or not profile_skills:
+        return render_template(
+        "index.html",
+        error="Please fill all required fields."
+        )
 
     resume_text = ""
     resume_skills = []
